@@ -318,6 +318,9 @@ export class Injector {
     keyOrIndex?: string | number,
   ) {
     if (isUndefined(param)) {
+      this.logger.log(
+        'Nest encountered an undefined dependency. This may be due to a circular import or a missing dependency declaration.',
+      );
       throw new UndefinedDependencyException(
         wrapper.name,
         dependencyContext,
@@ -775,7 +778,7 @@ export class Injector {
     return param === INQUIRER && parentInquirer;
   }
 
-  private addDependencyMetadata(
+  protected addDependencyMetadata(
     keyOrIndex: number | string,
     hostWrapper: InstanceWrapper,
     instanceWrapper: InstanceWrapper,
@@ -797,7 +800,8 @@ export class Injector {
       return;
     }
     const tokenName = this.getTokenName(token);
-    const dependentName = inquirer?.name ?? 'unknown';
+    const dependentName =
+      (inquirer?.name && inquirer.name.toString?.()) ?? 'unknown';
     const isAlias = dependentName === tokenName;
 
     const messageToPrint = `Resolving dependency ${clc.cyanBright(
